@@ -9,7 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http: ^1.1.0      # ← Tambahkan ini
+  http: ^1.1.0    
+  shared_preferences: ^2.5.4
 
 dev_dependencies:
   flutter_test:
