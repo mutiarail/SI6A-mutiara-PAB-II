@@ -1,8 +1,9 @@
+
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:karyawan/models/karyawan.dart';
-
 
 void main() {
   runApp(const MainApp());
@@ -15,26 +16,27 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home:  MyHomePage(),
+      home: MyHomePage(),
     );
   }
 }
 
-class MyHomePage extends StatelessWidget {
-  const MyHomePage();
-// ✨ Tambahkan fungsi ini
+class MyHomePage extends StatelessWidget{
+  const MyHomePage({super.key});
+
+   // ✨ Tambahkan fungsi ini
   Future<List<Karyawan>> _readJsonData() async {
     final String response = await rootBundle.loadString('assets/karyawan.json');
     final List<dynamic> data = json.decode(response);
     return data.map((json) => Karyawan.fromJson(json)).toList();
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Data Karyawan'),
-        backgroundColor :Theme.of(context).primaryColor,
+        backgroundColor: Theme.of(context).primaryColor,
       ),
       body: FutureBuilder(
         future: _readJsonData(),
@@ -49,11 +51,12 @@ class MyHomePage extends StatelessWidget {
                 final karyawan = snapshot.data![index];
                 return ListTile(
                   title: Text(karyawan.nama),
-                  subtitle:Column(
+                  subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(karyawan.umur.toString()),
-                      Text(karyawan.umur.toString()),
+                    children : [
+                      Text("Umur : " + karyawan.umur.toString()),
+                      Text("Alamat : " + karyawan.alamat.jalan + ", " + karyawan.alamat.kota + ", " + karyawan.alamat.provinsi),
+                      Text("Hobi : " + karyawan.hobi.join(', ')),
                     ],
                   ),
                 );
