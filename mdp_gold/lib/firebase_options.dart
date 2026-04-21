@@ -41,51 +41,54 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBE30x2Yc9GuZXARPHj0FegyE89byHQ_xI',
-    appId: '1:105566104201:web:80b97054e51e7044157458',
-    messagingSenderId: '105566104201',
-    projectId: 'daftarbelanja-5303d',
-    authDomain: 'daftarbelanja-5303d.firebaseapp.com',
-    databaseURL: 'https://daftarbelanja-5303d-default-rtdb.firebaseio.com',
-    storageBucket: 'daftarbelanja-5303d.firebasestorage.app',
+    apiKey: 'AIzaSyCDBY-3vYdfScTQYyPeKjiignWjITmMa_w',
+    appId: '1:17677630169:web:7cee1d1cc96529e6921cc8',
+    messagingSenderId: '17677630169',
+    projectId: 'mdpgold-bb763',
+    authDomain: 'mdpgold-bb763.firebaseapp.com',
+    databaseURL: 'https://mdpgold-bb763-default-rtdb.firebaseio.com',
+    storageBucket: 'mdpgold-bb763.firebasestorage.app',
+    measurementId: 'G-YBDKX8DJBE',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBHEtpOxl2ARXQ_ATBC2q03o3tJNzmBOjA',
-    appId: '1:105566104201:android:77e423f4f38c6362157458',
-    messagingSenderId: '105566104201',
-    projectId: 'daftarbelanja-5303d',
-    databaseURL: 'https://daftarbelanja-5303d-default-rtdb.firebaseio.com',
-    storageBucket: 'daftarbelanja-5303d.firebasestorage.app',
+    apiKey: 'AIzaSyAfXh7206BJTRO94JF_eUK1eaCGtJm77hw',
+    appId: '1:17677630169:android:d7d65d2c32afb719921cc8',
+    messagingSenderId: '17677630169',
+    projectId: 'mdpgold-bb763',
+    databaseURL: 'https://mdpgold-bb763-default-rtdb.firebaseio.com',
+    storageBucket: 'mdpgold-bb763.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyA_3PWkzxmgHT0ekqZbVh0X7lU5o_ZBpMk',
-    appId: '1:105566104201:ios:cf5c87e57dfb028f157458',
-    messagingSenderId: '105566104201',
-    projectId: 'daftarbelanja-5303d',
-    databaseURL: 'https://daftarbelanja-5303d-default-rtdb.firebaseio.com',
-    storageBucket: 'daftarbelanja-5303d.firebasestorage.app',
+    apiKey: 'AIzaSyAtesQK8dwpqAiNh6tOCPK89Bv01Uzic88',
+    appId: '1:17677630169:ios:eefb488172c93c5d921cc8',
+    messagingSenderId: '17677630169',
+    projectId: 'mdpgold-bb763',
+    databaseURL: 'https://mdpgold-bb763-default-rtdb.firebaseio.com',
+    storageBucket: 'mdpgold-bb763.firebasestorage.app',
     iosBundleId: 'com.example.mdpGold',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyA_3PWkzxmgHT0ekqZbVh0X7lU5o_ZBpMk',
-    appId: '1:105566104201:ios:cf5c87e57dfb028f157458',
-    messagingSenderId: '105566104201',
-    projectId: 'daftarbelanja-5303d',
-    databaseURL: 'https://daftarbelanja-5303d-default-rtdb.firebaseio.com',
-    storageBucket: 'daftarbelanja-5303d.firebasestorage.app',
+    apiKey: 'AIzaSyAtesQK8dwpqAiNh6tOCPK89Bv01Uzic88',
+    appId: '1:17677630169:ios:eefb488172c93c5d921cc8',
+    messagingSenderId: '17677630169',
+    projectId: 'mdpgold-bb763',
+    databaseURL: 'https://mdpgold-bb763-default-rtdb.firebaseio.com',
+    storageBucket: 'mdpgold-bb763.firebasestorage.app',
     iosBundleId: 'com.example.mdpGold',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyBE30x2Yc9GuZXARPHj0FegyE89byHQ_xI',
-    appId: '1:105566104201:web:05b11bc8c86a15dd157458',
-    messagingSenderId: '105566104201',
-    projectId: 'daftarbelanja-5303d',
-    authDomain: 'daftarbelanja-5303d.firebaseapp.com',
-    databaseURL: 'https://daftarbelanja-5303d-default-rtdb.firebaseio.com',
-    storageBucket: 'daftarbelanja-5303d.firebasestorage.app',
+    apiKey: 'AIzaSyCDBY-3vYdfScTQYyPeKjiignWjITmMa_w',
+    appId: '1:17677630169:web:df1e396857122414921cc8',
+    messagingSenderId: '17677630169',
+    projectId: 'mdpgold-bb763',
+    authDomain: 'mdpgold-bb763.firebaseapp.com',
+    databaseURL: 'https://mdpgold-bb763-default-rtdb.firebaseio.com',
+    storageBucket: 'mdpgold-bb763.firebasestorage.app',
+    measurementId: 'G-W9BDSF61JV',
   );
+
 }
