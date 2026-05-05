@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "787489771463",
+    "project_id": "cloud-message-abb25",
+    "storage_bucket": "cloud-message-abb25.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:787489771463:android:20dedb5539dd5da37e93e2",
+        "android_client_info": {
+          "package_name": "com.example.cloud_message"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmmXXP3V--GvtXUIaz84d9W7E-Y-kbI24"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
