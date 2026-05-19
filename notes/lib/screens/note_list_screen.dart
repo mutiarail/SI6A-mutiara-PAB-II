@@ -7,6 +7,7 @@ import '../widgets/note_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import '../services/fcm_service.dart';
+import 'subscribe_screen.dart';
 
 class NoteListScreen extends StatefulWidget {
   const NoteListScreen({super.key});
@@ -173,8 +174,22 @@ class _NoteListScreenState extends State<NoteListScreen> {
         debugPrint('FCM Token: $token');
       }
     },
+
+    
   ),
+  IconButton(
+  icon: const Icon(Icons.subscriptions),
+  tooltip: 'Langganan Topik',
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SubscribeScreen()),
+    );
+  },
+),
 ],
+
+
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
         elevation: 0,
