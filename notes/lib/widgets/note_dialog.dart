@@ -25,8 +25,9 @@ class _NoteDialogState extends State<NoteDialog> {
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.note?.title ?? '');
-    _descriptionController =
-        TextEditingController(text: widget.note?.description ?? '');
+    _descriptionController = TextEditingController(
+      text: widget.note?.description ?? '',
+    );
     _imageBase64 = widget.note?.imageBase64;
   }
 
@@ -61,9 +62,9 @@ class _NoteDialogState extends State<NoteDialog> {
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal memilih gambar: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gagal memilih gambar: $e')));
       }
     }
   }

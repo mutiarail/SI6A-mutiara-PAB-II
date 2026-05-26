@@ -1,14 +1,16 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import '../l10n/app_localizations.dart'; // l10n
+import '../main.dart';
 import '../models/note.dart';
 import '../services/note_service.dart';
 import '../widgets/note_dialog.dart';
-import 'package:flutter/services.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+
 import '../services/fcm_service.dart';
 import 'subscribe_screen.dart';
-
 
 class NoteListScreen extends StatefulWidget {
   const NoteListScreen({super.key});
@@ -18,11 +20,12 @@ class NoteListScreen extends StatefulWidget {
 }
 
 class _NoteListScreenState extends State<NoteListScreen> {
-  final NoteService _noteService = NoteService();
-  final FcmService _fcmService = FcmService(); // tambahan
+  final NoteService _noteService = NoteService(); // note service
+  final FcmService _fcmService = FcmService(); // fcm service
 
   /// Show dialog to add a new note
   Future<void> _addNote() async {
+    final l10n = AppLocalizations.of(context)!; // l10n
     final note = await showDialog<Note>(
       context: context,
       builder: (context) => const NoteDialog(),
@@ -31,15 +34,17 @@ class _NoteListScreenState extends State<NoteListScreen> {
     if (note != null) {
       try {
         await _noteService.addNote(note);
+
         // Send notification via REST API
-         await _fcmService.sendNoteNotification(
-        title: note.title,
-        description: note.description,
-    );
+        await _fcmService.sendNoteNotification(
+          title: note.title,
+          description: note.description,
+        );
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Note berhasil ditambahkan'),
+            SnackBar(
+              content: Text(l10n.noteAdded), // l10n
               backgroundColor: Colors.green,
             ),
           );
@@ -48,7 +53,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Gagal menambahkan note: $e'),
+              content: Text(l10n.noteAddFailed(e.toString())), // l10n
               backgroundColor: Colors.red,
             ),
           );
@@ -59,6 +64,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
 
   /// Show dialog to edit an existing note
   Future<void> _editNote(Note note) async {
+    final l10n = AppLocalizations.of(context)!; // l10n
     final updatedNote = await showDialog<Note>(
       context: context,
       builder: (context) => NoteDialog(note: note),
@@ -69,8 +75,8 @@ class _NoteListScreenState extends State<NoteListScreen> {
         await _noteService.updateNote(updatedNote);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Note berhasil diupdate'),
+            SnackBar(
+              content: Text(l10n.noteUpdated), // l10n
               backgroundColor: Colors.green,
             ),
           );
@@ -79,7 +85,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Gagal mengupdate note: $e'),
+              content: Text(l10n.noteUpdateFailed(e.toString())), // l10n
               backgroundColor: Colors.red,
             ),
           );
@@ -90,27 +96,33 @@ class _NoteListScreenState extends State<NoteListScreen> {
 
   /// Show confirmation dialog and delete a note
   Future<void> _deleteNote(Note note) async {
+    final l10n = AppLocalizations.of(context)!; // l10n
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Hapus Note'),
-        content: Text('Apakah Anda yakin ingin menghapus "${note.title}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Batal'),
+      builder: (context) {
+        final dialogL10n = AppLocalizations.of(context)!; // l10n
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+          title: Text(dialogL10n.deleteNote), // l10n
+          content: Text(dialogL10n.deleteConfirm(note.title)), // l10n
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(dialogL10n.cancel), // l10n
             ),
-            child: const Text('Hapus'),
-          ),
-        ],
-      ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: Text(dialogL10n.delete), // l10n
+            ),
+          ],
+        );
+      },
     );
 
     if (confirm == true && note.id != null) {
@@ -118,8 +130,8 @@ class _NoteListScreenState extends State<NoteListScreen> {
         await _noteService.deleteNote(note.id!);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Note berhasil dihapus'),
+            SnackBar(
+              content: Text(l10n.noteDeleted), // l10n
               backgroundColor: Colors.green,
             ),
           );
@@ -128,7 +140,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Gagal menghapus note: $e'),
+              content: Text(l10n.noteDeleteFailed(e.toString())), // l10n
               backgroundColor: Colors.red,
             ),
           );
@@ -140,8 +152,18 @@ class _NoteListScreenState extends State<NoteListScreen> {
   /// Format date to readable string
   String _formatDate(DateTime date) {
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${date.day} ${months[date.month - 1]} ${date.year}, '
         '${date.hour.toString().padLeft(2, '0')}:'
@@ -150,60 +172,100 @@ class _NoteListScreenState extends State<NoteListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!; // l10n
+
+    final currentLocale = Localizations.localeOf(context).languageCode; // l10n
+
     return Scaffold(
       appBar: AppBar(
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.sticky_note_2, color: Colors.white),
-            SizedBox(width: 8),
-            Text('My Notes'),
+            const Icon(Icons.sticky_note_2, color: Colors.white),
+            const SizedBox(width: 8),
+            Text(l10n.appTitle), // l10n
           ],
         ),
-        actions: [
-  IconButton(
-    icon: const Icon(Icons.copy_all),
-    tooltip: 'Copy FCM Token',
-    onPressed: () async {
-      final token = await FirebaseMessaging.instance.getToken();
-      if (token != null) {
-        await Clipboard.setData(ClipboardData(text: token));
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('FCM Token copied to clipboard')),
-          );
-        }
-        debugPrint('FCM Token: $token');
-      }
-    },
-
-    
-  ),
-  IconButton(
-  icon: const Icon(Icons.subscriptions),
-  tooltip: 'Langganan Topik',
-  onPressed: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const SubscribeScreen()),
-    );
-  },
-),
-],
-
-
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
         elevation: 0,
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.language),
+            tooltip: l10n.language, // l10n
+            onSelected: (code) => MainApp.setLocale(Locale(code)), // l10n
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'id',
+                child: Row(
+                  children: [
+                    if (currentLocale == 'id') // l10n
+                      const Icon(
+                        Icons.check,
+                        size: 18,
+                        color: Colors.deepPurple,
+                      )
+                    else
+                      const SizedBox(width: 18),
+                    const SizedBox(width: 8),
+                    Text(l10n.languageIndonesian), // l10n
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'en',
+                child: Row(
+                  children: [
+                    if (currentLocale == 'en') // l10n
+                      const Icon(
+                        Icons.check,
+                        size: 18,
+                        color: Colors.deepPurple,
+                      )
+                    else
+                      const SizedBox(width: 18),
+                    const SizedBox(width: 8),
+                    Text(l10n.languageEnglish), // l10n
+                  ],
+                ),
+              ),
+            ],
+          ),
+          IconButton(
+            icon: const Icon(Icons.subscriptions),
+            tooltip: l10n.subscribeTooltip, // l10n
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SubscribeScreen(),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.copy_all),
+            tooltip: l10n.copyFcmToken, // l10n
+            onPressed: () async {
+              final token = await FirebaseMessaging.instance.getToken();
+              if (token != null) {
+                await Clipboard.setData(ClipboardData(text: token));
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.fcmTokenCopied)), // l10n
+                  );
+                }
+                debugPrint('FCM Token: $token');
+              }
+            },
+          ),
+        ],
       ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Colors.deepPurple.shade50,
-              Colors.white,
-            ],
+            colors: [Colors.deepPurple.shade50, Colors.white],
           ),
         ),
         child: StreamBuilder<List<Note>>(
@@ -220,10 +282,14 @@ class _NoteListScreenState extends State<NoteListScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
+                    Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: Colors.red.shade300,
+                    ),
                     const SizedBox(height: 16),
                     Text(
-                      'Terjadi kesalahan',
+                      l10n.errorOccurred, // l10n
                       style: TextStyle(
                         fontSize: 18,
                         color: Colors.grey.shade700,
@@ -255,7 +321,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Belum ada catatan',
+                      l10n.noNotes, // l10n
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
@@ -264,7 +330,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Tekan tombol + untuk menambahkan catatan',
+                      l10n.addNoteHint, // l10n
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey.shade400,
@@ -298,6 +364,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
 
   /// Build a single note card
   Widget _buildNoteCard(Note note) {
+    final l10n = AppLocalizations.of(context)!; // l10n
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
@@ -308,13 +375,15 @@ class _NoteListScreenState extends State<NoteListScreen> {
           // Image (if available)
           if (note.imageBase64 != null && note.imageBase64!.isNotEmpty)
             ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
               child: Image.memory(
                 base64Decode(note.imageBase64!),
                 height: 200,
                 width: double.infinity,
                 fit: BoxFit.cover,
+                cacheHeight: 400, // Optimize memory usage
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
                     height: 100,
@@ -387,7 +456,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
                       icon: const Icon(Icons.delete_outline),
                       color: Colors.red,
                       iconSize: 20,
-                      tooltip: 'Hapus',
+                      tooltip: l10n.delete, // l10n
                       constraints: const BoxConstraints(),
                       padding: const EdgeInsets.all(8),
                     ),

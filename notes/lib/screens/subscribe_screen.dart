@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/fcm_service.dart';
+import '../l10n/app_localizations.dart';
 
 class SubscribeScreen extends StatefulWidget {
-  const SubscribeScreen({Key? key}) : super(key: key);
+  const SubscribeScreen({super.key});
 
   @override
   State<SubscribeScreen> createState() => _SubscribeScreenState();
@@ -12,14 +13,14 @@ class SubscribeScreen extends StatefulWidget {
 class _SubscribeScreenState extends State<SubscribeScreen> {
   final TextEditingController _topicController = TextEditingController();
   final FcmService _fcmService = FcmService();
-  
+
   List<String> _subscribedTopics = [];
   final List<String> _suggestedTopics = [
     'keuangan',
     'berita',
     'olahraga',
     'teknologi',
-    'kesehatan'
+    'kesehatan',
   ];
 
   @override
@@ -32,11 +33,13 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _subscribedTopics = prefs.getStringList('subscribed_topics') ?? [];
-      
+
       // Ensure 'notes' and 'berita' are in the list if they are default subscribed
       if (!_subscribedTopics.contains('notes')) _subscribedTopics.add('notes');
-      if (!_subscribedTopics.contains('berita')) _subscribedTopics.add('berita');
-      
+      if (!_subscribedTopics.contains('berita')) {
+        _subscribedTopics.add('berita');
+      }
+
       _saveSubscribedTopics();
     });
   }
@@ -46,39 +49,66 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
     await prefs.setStringList('subscribed_topics', _subscribedTopics);
   }
 
+  String _getTopicDisplayName(BuildContext context, String topic) {
+    final languageCode = Localizations.localeOf(context).languageCode;
+    if (languageCode == 'en') {
+      final translations = {
+        'keuangan': 'Finance',
+        'berita': 'News',
+        'olahraga': 'Sports',
+        'teknologi': 'Technology',
+        'kesehatan': 'Health',
+      };
+      return translations[topic] ?? topic;
+    } else {
+      final translations = {
+        'keuangan': 'Keuangan',
+        'berita': 'Berita',
+        'olahraga': 'Olahraga',
+        'teknologi': 'Teknologi',
+        'kesehatan': 'Kesehatan',
+      };
+      return translations[topic] ?? topic;
+    }
+  }
+
   Future<void> _toggleSubscription(String topic) async {
+    final l10n = AppLocalizations.of(context)!;
     final isSubscribed = _subscribedTopics.contains(topic);
-    
+    final displayName = _getTopicDisplayName(context, topic);
+
     if (isSubscribed) {
       await _fcmService.unsubscribeFromTopic(topic);
       setState(() {
         _subscribedTopics.remove(topic);
       });
-      _showSnackBar('Berhenti berlangganan dari topik: $topic');
+      _showSnackBar(l10n.unsubscribedFromTopic(displayName));
     } else {
       await _fcmService.subscribeToTopic(topic);
       setState(() {
         _subscribedTopics.add(topic);
       });
-      _showSnackBar('Berhasil berlangganan ke topik: $topic');
+      _showSnackBar(l10n.subscribedToTopic(displayName));
     }
-    
+
     await _saveSubscribedTopics();
   }
 
   void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   void _subscribeCustomTopic() {
+    final l10n = AppLocalizations.of(context)!;
     final topic = _topicController.text.trim();
     if (topic.isNotEmpty) {
       if (!_subscribedTopics.contains(topic)) {
         _toggleSubscription(topic);
       } else {
-        _showSnackBar('Sudah berlangganan ke topik: $topic');
+        final displayName = _getTopicDisplayName(context, topic);
+        _showSnackBar(l10n.alreadySubscribed(displayName));
       }
       _topicController.clear();
       FocusScope.of(context).unfocus();
@@ -87,20 +117,21 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final otherTopics = _subscribedTopics.where((t) => !_suggestedTopics.contains(t)).toList();
+    final l10n = AppLocalizations.of(context)!;
+    final otherTopics = _subscribedTopics
+        .where((t) => !_suggestedTopics.contains(t))
+        .toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Langganan Topik'),
-      ),
+      appBar: AppBar(title: Text(l10n.subscribeScreenTitle)),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Tambah Topik Kustom',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Text(
+              l10n.customTopicTitle,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Row(
@@ -108,10 +139,12 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
                 Expanded(
                   child: TextField(
                     controller: _topicController,
-                    decoration: const InputDecoration(
-                      hintText: 'Misal: hiburan, game',
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                    decoration: InputDecoration(
+                      hintText: l10n.customTopicHint,
+                      border: const OutlineInputBorder(),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                      ),
                     ),
                   ),
                 ),
@@ -121,14 +154,14 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: const Text('Langganan'),
+                  child: Text(l10n.subscribe),
                 ),
               ],
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Saran Topik',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Text(
+              l10n.suggestedTopics,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             ListView.builder(
@@ -138,11 +171,11 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
               itemBuilder: (context, index) {
                 final topic = _suggestedTopics[index];
                 final isSubscribed = _subscribedTopics.contains(topic);
-                
+
                 return Card(
                   margin: const EdgeInsets.only(bottom: 8),
                   child: ListTile(
-                    title: Text(topic),
+                    title: Text(_getTopicDisplayName(context, topic)),
                     trailing: Switch(
                       value: isSubscribed,
                       onChanged: (value) => _toggleSubscription(topic),
@@ -153,9 +186,12 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
             ),
             if (otherTopics.isNotEmpty) ...[
               const SizedBox(height: 16),
-              const Text(
-                'Topik Lainnya',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              Text(
+                l10n.otherTopics,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               Expanded(
@@ -163,11 +199,11 @@ class _SubscribeScreenState extends State<SubscribeScreen> {
                   itemCount: otherTopics.length,
                   itemBuilder: (context, index) {
                     final topic = otherTopics[index];
-                    
+
                     return Card(
                       margin: const EdgeInsets.only(bottom: 8),
                       child: ListTile(
-                        title: Text(topic),
+                        title: Text(_getTopicDisplayName(context, topic)),
                         trailing: IconButton(
                           icon: const Icon(Icons.delete, color: Colors.red),
                           onPressed: () => _toggleSubscription(topic),
